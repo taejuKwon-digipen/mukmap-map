@@ -14,7 +14,22 @@
 <script>
   var map;
   var markers = [];
+  var userMarker = null;
   var pendingRestaurants = null;
+
+  var RESTAURANT_MARKER_IMG = new kakao.maps.MarkerImage(
+    'data:image/svg+xml;base64,' +
+      btoa('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="6" fill="#FF8FAB" stroke="#ffffff" stroke-width="2"/></svg>'),
+    new kakao.maps.Size(16, 16),
+    { offset: new kakao.maps.Point(8, 8) }
+  );
+
+  var USER_MARKER_IMG = new kakao.maps.MarkerImage(
+    'data:image/svg+xml;base64,' +
+      btoa('<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><circle cx="11" cy="11" r="9" fill="#5C374C" stroke="#ffffff" stroke-width="3"/></svg>'),
+    new kakao.maps.Size(22, 22),
+    { offset: new kakao.maps.Point(11, 11) }
+  );
 
   function notifyReady() {
     if (window.ReactNativeWebView) {
@@ -25,7 +40,7 @@
   kakao.maps.load(function () {
     map = new kakao.maps.Map(document.getElementById('map'), {
       center: new kakao.maps.LatLng(35.8714, 128.6014),
-      level: 6,
+      level: 5,
     });
     notifyReady();
     if (pendingRestaurants) {
@@ -45,12 +60,9 @@
       return;
     }
     clearMarkers();
-    if (list.length === 0) return;
-    var bounds = new kakao.maps.LatLngBounds();
     list.forEach(function (r) {
       var pos = new kakao.maps.LatLng(r.lat, r.lng);
-      bounds.extend(pos);
-      var marker = new kakao.maps.Marker({ position: pos, map: map, title: r.name });
+      var marker = new kakao.maps.Marker({ position: pos, map: map, image: RESTAURANT_MARKER_IMG, title: r.name });
       var iw = new kakao.maps.InfoWindow({
         content:
           '<div style="padding:6px 10px;font-size:13px;white-space:nowrap;">' +
@@ -64,14 +76,15 @@
       });
       markers.push(marker);
     });
-    map.setBounds(bounds);
   };
 
   window.setCenter = function (lat, lng) {
     if (!map) return;
     var pos = new kakao.maps.LatLng(lat, lng);
+    map.setLevel(5);
     map.setCenter(pos);
-    new kakao.maps.Marker({ position: pos, map: map, title: '내 위치' });
+    if (userMarker) userMarker.setMap(null);
+    userMarker = new kakao.maps.Marker({ position: pos, map: map, image: USER_MARKER_IMG, title: '내 위치' });
   };
 </script>
 </body>
