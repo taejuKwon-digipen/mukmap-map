@@ -16,20 +16,8 @@
   var markers = [];
   var userMarker = null;
   var pendingRestaurants = null;
-
-  var RESTAURANT_MARKER_IMG = new kakao.maps.MarkerImage(
-    'data:image/svg+xml;base64,' +
-      btoa('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="6" fill="#FF8FAB" stroke="#ffffff" stroke-width="2"/></svg>'),
-    new kakao.maps.Size(16, 16),
-    { offset: new kakao.maps.Point(8, 8) }
-  );
-
-  var USER_MARKER_IMG = new kakao.maps.MarkerImage(
-    'data:image/svg+xml;base64,' +
-      btoa('<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><circle cx="11" cy="11" r="9" fill="#5C374C" stroke="#ffffff" stroke-width="3"/></svg>'),
-    new kakao.maps.Size(22, 22),
-    { offset: new kakao.maps.Point(11, 11) }
-  );
+  var RESTAURANT_MARKER_IMG;
+  var USER_MARKER_IMG;
 
   function notifyReady() {
     if (window.ReactNativeWebView) {
@@ -38,6 +26,20 @@
   }
 
   kakao.maps.load(function () {
+    RESTAURANT_MARKER_IMG = new kakao.maps.MarkerImage(
+      'data:image/svg+xml;base64,' +
+        btoa('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="6" fill="#FF8FAB" stroke="#ffffff" stroke-width="2"/></svg>'),
+      new kakao.maps.Size(16, 16),
+      { offset: new kakao.maps.Point(8, 8) }
+    );
+
+    USER_MARKER_IMG = new kakao.maps.MarkerImage(
+      'data:image/svg+xml;base64,' +
+        btoa('<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><circle cx="11" cy="11" r="9" fill="#5C374C" stroke="#ffffff" stroke-width="3"/></svg>'),
+      new kakao.maps.Size(22, 22),
+      { offset: new kakao.maps.Point(11, 11) }
+    );
+
     map = new kakao.maps.Map(document.getElementById('map'), {
       center: new kakao.maps.LatLng(35.8714, 128.6014),
       level: 5,
