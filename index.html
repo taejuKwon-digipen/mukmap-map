@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>mukmap 지도</title>
+<style>
+  html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=ee77f660f6d2b59e63db284a6a8622fd&autoload=false"></script>
+<script>
+  var map;
+  var markers = [];
+  var pendingRestaurants = null;
+
+  function notifyReady() {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'ready' }));
+    }
+  }
+
+  kakao.maps.load(function () {
+    map = new kakao.maps.Map(document.getElementById('map'), {
+      center: new kakao.maps.LatLng(35.8714, 128.6014),
+      level: 6,
+    });
+    notifyReady();
+    if (pendingRestaurants) {
+      window.renderRestaurants(pendingRestaurants);
+      pendingRestaurants = null;
+    }
+  });
+
+  function clearMarkers() {
+    markers.forEach(function (m) { m.setMap(null); });
+    markers = [];
+  }
+
+  window.renderRestaurants = function (list) {
+    if (!map) {
+      pendingRestaurants = list;
+      return;
+    }
+    clearMarkers();
+    if (list.length === 0) return;
+    var bounds = new kakao.maps.LatLngBounds();
+    list.forEach(function (r) {
+      var pos = new kakao.maps.LatLng(r.lat, r.lng);
+      bounds.extend(pos);
+      var marker = new kakao.maps.Marker({ position: pos, map: map, title: r.name });
+      var iw = new kakao.maps.InfoWindow({
+        content:
+          '<div style="padding:6px 10px;font-size:13px;white-space:nowrap;">' +
+          r.name +
+          '<br/><small>' +
+          r.signatureMenu +
+          '</small></div>',
+      });
+      kakao.maps.event.addListener(marker, 'click', function () {
+        iw.open(map, marker);
+      });
+      markers.push(marker);
+    });
+    map.setBounds(bounds);
+  };
+
+  window.setCenter = function (lat, lng) {
+    if (!map) return;
+    var pos = new kakao.maps.LatLng(lat, lng);
+    map.setCenter(pos);
+    new kakao.maps.Marker({ position: pos, map: map, title: '내 위치' });
+  };
+</script>
+</body>
+</html>
